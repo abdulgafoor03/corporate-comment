@@ -2,21 +2,30 @@ import "./App.css";
 import Container from "./components/Container";
 import Footer from "./components/Footer";
 import Hashtags from "./components/Hashtags";
-import { TFeedbackItem, TFeedbackItemArray } from "../src/types/FeedbackItem";
-import { useEffect, useMemo, useState } from "react";
+import { TFeedbackItem } from "../src/types/FeedbackItem";
+import { useMemo, useState } from "react";
+import { useFeedbackData } from "./hooks/hooks";
 
 function App() {
-  const [feedbackData, setFeedbackData] = useState<TFeedbackItemArray>([]);
-  
+  const { errorMessage, isLoading, feedbackData, setFeedbackData } =
+    useFeedbackData();
   const [selectedCompany, setSelectedCompany] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const hashtagList = useMemo(()=>[...new Set(feedbackData.map((feed) => feed.company.toUpperCase()))],[feedbackData]);
 
+  const hashtagList = useMemo(
+    () => [...new Set(feedbackData.map((feed) => feed.company.toUpperCase()))],
+    [feedbackData]
+  );
 
-  const filteredList:TFeedbackItem[] = useMemo(() => 
-    selectedCompany ? feedbackData.filter((feed) => feed.company.toLowerCase() === selectedCompany.toLowerCase()):feedbackData
- , [feedbackData, selectedCompany]);
+  const filteredList: TFeedbackItem[] = useMemo(
+    () =>
+      selectedCompany
+        ? feedbackData.filter(
+            (feed) =>
+              feed.company.toLowerCase() === selectedCompany.toLowerCase()
+          )
+        : feedbackData,
+    [feedbackData, selectedCompany]
+  );
 
   const handleAddToList = async (text: string) => {
     const companyName = text
@@ -44,28 +53,6 @@ function App() {
       }
     );
   };
-  useEffect(() => {
-    setIsLoading(true);
-    fetch(
-      "https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks"
-    )
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error();
-        }
-        return res.json();
-      })
-      .then((res) => {
-        setFeedbackData(res.feedbacks);
-        setErrorMessage("");
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setErrorMessage("Something went wrong..");
-        setFeedbackData([]);
-        setIsLoading(false);
-      });
-  }, []);
 
   return (
     <div className="app">
