@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { MAX_CHARACTERS } from "../../constants/constants";
-import { headerProps } from "../../types/FeedbackItem";
+import { useFeedBackContext } from "../../hooks/FeedbackItemContextProvider";
 
-export default function Feedbackform({handleAddToList}:headerProps) {
+
+export default function Feedbackform() {
+  const { handleAddToList }= useFeedBackContext();
+
+
   const [text, setText] = useState("");
   const [textValidation,setTextValidation]=useState(false);
   const [textInValidation,setTextInValidation]=useState(false);

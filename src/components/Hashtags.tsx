@@ -1,8 +1,8 @@
-type hastagProp={
-  hashtagList:string[];
-  setSelectedCompany:(tag:string)=>void;
-}
-export default function Hashtags({ hashtagList,setSelectedCompany }:hastagProp) {
+import { useFeedBackContext } from "../hooks/FeedbackItemContextProvider";
+
+
+export default function Hashtags() {
+  const { hashtagList,setSelectedCompany}=useFeedBackContext();
   return (
     <ul className="hashtags">
       {hashtagList.map((hashtag:string,i) => {
