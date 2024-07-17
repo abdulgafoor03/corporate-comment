@@ -1,23 +1,27 @@
 import { TFeedbackItem, TFeedbackItemArray } from "../types/FeedbackItem";
-import { useEffect, useMemo, useState, createContext, useContext } from "react";
+import { useMemo, useState, createContext } from "react";
+import { useFeedbackData } from "./hooks";
 
-type FeedbackItemsContextProps={
-    filteredList:TFeedbackItemArray,
-    errorMessage:string,
-    isLoading:boolean,
-    hashtagList:string[],
-    selectedCompany:string,
-    setSelectedCompany:(text:string)=>void,
-    handleAddToList:(text:string)=>void
-}
-type FeedbackItemsContextChildrenProps={
-    children:React.ReactNode
-}
-export const FeedbackContext = createContext<FeedbackItemsContextProps | null>(null);
-export  function FeedbackItemContextProvider({children}:FeedbackItemsContextChildrenProps) {
-  const [feedbackData, setFeedbackData] = useState<TFeedbackItemArray>([]);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+type FeedbackItemsContextProps = {
+  filteredList: TFeedbackItemArray;
+  errorMessage: string;
+  isLoading: boolean;
+  hashtagList: string[];
+  selectedCompany: string;
+  setSelectedCompany: (text: string) => void;
+  handleAddToList: (text: string) => void;
+};
+type FeedbackItemsContextChildrenProps = {
+  children: React.ReactNode;
+};
+export const FeedbackContext = createContext<FeedbackItemsContextProps | null>(
+  null
+);
+export function FeedbackItemContextProvider({
+  children,
+}: FeedbackItemsContextChildrenProps) {
+  const { feedbackData, setFeedbackData, errorMessage, isLoading } =
+    useFeedbackData();
   const [selectedCompany, setSelectedCompany] = useState("");
 
   const filteredList: TFeedbackItem[] = useMemo(
@@ -31,7 +35,7 @@ export  function FeedbackItemContextProvider({children}:FeedbackItemsContextChil
     [feedbackData, selectedCompany]
   );
 
-  const hashtagList:string[] = useMemo(
+  const hashtagList: string[] = useMemo(
     () => [...new Set(feedbackData.map((feed) => feed.company.toUpperCase()))],
     [feedbackData]
   );
@@ -61,44 +65,20 @@ export  function FeedbackItemContextProvider({children}:FeedbackItemsContextChil
       }
     );
   };
-  useEffect(() => {
-    setIsLoading(true);
-    fetch(
-      "https://bytegrad.com/course-assets/projects/corpcomment/api/feedbacks"
-    )
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error();
-        }
-        return res.json();
-      })
-      .then((res) => {
-        setFeedbackData(res.feedbacks);
-        setErrorMessage("");
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setErrorMessage("Something went wrong..");
-        setFeedbackData([]);
-        setIsLoading(false);
-      });
-  }, []);
 
-  return <FeedbackContext.Provider value={{
-    filteredList,
-    errorMessage,
-    isLoading,
-    hashtagList,
-    selectedCompany,
-    setSelectedCompany,
-    handleAddToList
-  }}>{children}</FeedbackContext.Provider>
-}
-
-export function useFeedBackContext(){
-    const context=useContext(FeedbackContext);
-    if(!context){
-      throw new Error('FeedbackitemContextProvider is not available')
-    }
-    return context
+  return (
+    <FeedbackContext.Provider
+      value={{
+        filteredList,
+        errorMessage,
+        isLoading,
+        hashtagList,
+        selectedCompany,
+        setSelectedCompany,
+        handleAddToList,
+      }}
+    >
+      {children}
+    </FeedbackContext.Provider>
+  );
 }

@@ -1,7 +1,7 @@
 import FeedbackItems from "./FeedbackItems";
 import Spinner from "../Spinner";
 import ErrorMessage from "../ErrorMessage";
-import { useFeedBackContext } from "../../hooks/FeedbackItemContextProvider";
+import { useFeedBackContext } from "../../hooks/hooks";
 
 
 export default function FeedbackList() {
